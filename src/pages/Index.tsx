@@ -1,434 +1,360 @@
 import { useState } from "react";
-import { Star, MapPin, Phone, Clock, Instagram, Send, Check, Scissors, Sparkles, Hand, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
-import heroSalon from "@/assets/hero-salon.jpg";
-import serviceHair from "@/assets/service-hair.jpg";
-import serviceManicure from "@/assets/service-manicure.jpg";
-import serviceFace from "@/assets/service-face.jpg";
-import serviceBrows from "@/assets/service-brows.jpg";
+import { Star, MapPin, Phone, Clock, MessageCircle, Scissors, Sparkles, Hand, Eye, Check } from "lucide-react";
+import heroImg from "@/assets/hero-salon.jpg";
+import nailsImg from "@/assets/service-nails.jpg";
+import hairImg from "@/assets/service-hair.jpg";
+import faceImg from "@/assets/service-face.jpg";
+import browsImg from "@/assets/service-brows.jpg";
 
 const services = [
   {
     icon: Scissors,
     title: "Волосы",
+    image: hairImg,
     items: [
       { name: "Женская стрижка", price: "от 2 500 ₽" },
       { name: "Окрашивание в один тон", price: "от 4 500 ₽" },
-      { name: "Сложное окрашивание", price: "от 8 000 ₽" },
-      { name: "Укладка / вечерняя причёска", price: "от 2 000 ₽" },
+      { name: "Сложное окрашивание / шатуш", price: "от 8 900 ₽" },
+      { name: "Укладка", price: "от 1 800 ₽" },
     ],
-    image: serviceHair,
   },
   {
     icon: Hand,
     title: "Маникюр и педикюр",
+    image: nailsImg,
     items: [
-      { name: "Маникюр с покрытием", price: "от 2 200 ₽" },
-      { name: "Аппаратный педикюр", price: "от 2 800 ₽" },
-      { name: "Снятие + покрытие", price: "от 1 800 ₽" },
+      { name: "Маникюр + покрытие гель-лак", price: "от 2 200 ₽" },
+      { name: "Аппаратный педикюр + покрытие", price: "от 3 200 ₽" },
+      { name: "Снятие покрытия", price: "от 500 ₽" },
       { name: "Дизайн (1 ноготь)", price: "от 150 ₽" },
     ],
-    image: serviceManicure,
   },
   {
     icon: Sparkles,
-    title: "Лицо и косметология",
+    title: "Лицо и уход",
+    image: faceImg,
     items: [
-      { name: "Чистка лица", price: "от 4 000 ₽" },
-      { name: "Уходовая программа", price: "от 3 500 ₽" },
-      { name: "Пилинг", price: "от 4 500 ₽" },
+      { name: "Чистка лица комбинированная", price: "от 4 500 ₽" },
+      { name: "Пилинг / уходовая программа", price: "от 3 800 ₽" },
       { name: "Массаж лица", price: "от 2 500 ₽" },
     ],
-    image: serviceFace,
   },
   {
     icon: Eye,
     title: "Брови и ресницы",
+    image: browsImg,
     items: [
       { name: "Коррекция и окрашивание бровей", price: "от 1 500 ₽" },
       { name: "Ламинирование бровей", price: "от 2 500 ₽" },
-      { name: "Ламинирование ресниц", price: "от 3 000 ₽" },
-      { name: "Наращивание ресниц", price: "от 3 500 ₽" },
+      { name: "Ламинирование ресниц", price: "от 2 800 ₽" },
     ],
-    image: serviceBrows,
   },
 ];
 
 const reviews = [
-  {
-    name: "Анна К.",
-    text: "Прекрасный салон в самом центре. Делала окрашивание — мастер подобрала идеальный оттенок, всё аккуратно и без спешки. Вернусь обязательно.",
-  },
-  {
-    name: "Мария С.",
-    text: "Зашла на маникюр между встречами — приняли вовремя, сделали быстро и очень аккуратно. Уютная атмосфера, приятные цены для центра.",
-  },
-  {
-    name: "Екатерина В.",
-    text: "Хожу на брови только сюда. Чистота, внимание к деталям, мастер слышит, что хочешь. Локация — мечта, две минуты от метро.",
-  },
-  {
-    name: "Ольга Р.",
-    text: "Сделали укладку перед мероприятием — держалась весь вечер. Спасибо за внимательное отношение и аккуратность.",
-  },
+  { name: "Анна М.", text: "Прекрасный салон в самом центре. Удобно забежать в обед — сделали идеальный маникюр за час. Девочки внимательные, чисто и уютно.", rating: 5 },
+  { name: "Екатерина П.", text: "Делала окрашивание у мастера — попали в желаемый оттенок с первого раза. Очень довольна, буду возвращаться.", rating: 5 },
+  { name: "Ольга К.", text: "Хожу на брови и уход за лицом. Отношение к клиенту, как к подруге — без навязывания услуг. Спасибо!", rating: 5 },
+  { name: "Мария Л.", text: "Локация шикарная — две минуты от метро. Записалась через сайт, перезвонили быстро, всё подтвердили.", rating: 5 },
 ];
 
 const steps = [
-  { n: "01", title: "Заявка", text: "Оставляете заявку или звоните — подтвердим время в течение 15 минут." },
-  { n: "02", title: "Подбор мастера", text: "Уточняем ваши пожелания и подбираем подходящего специалиста." },
-  { n: "03", title: "Визит", text: "Приходите за 5 минут до записи. Чай, кофе и комфортная атмосфера." },
-  { n: "04", title: "Результат", text: "Уходите с результатом, который нравится. Рекомендации по уходу — в подарок." },
+  { n: "01", title: "Оставьте заявку", desc: "Через форму, WhatsApp или по телефону. Подберём удобное время." },
+  { n: "02", title: "Подтверждаем запись", desc: "Администратор перезвонит в течение 15 минут в рабочее время." },
+  { n: "03", title: "Приходите в салон", desc: "Две минуты пешком от метро Охотный Ряд. Встречаем чаем или кофе." },
+  { n: "04", title: "Уходите в хорошем настроении", desc: "Согласуем дату следующего визита, чтобы не выпадать из ритма." },
 ];
 
 const Index = () => {
-  const [form, setForm] = useState({ name: "", phone: "", service: "", note: "" });
+  const [form, setForm] = useState({ name: "", phone: "", service: "", message: "" });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name || !form.phone) {
-      toast.error("Укажите имя и телефон");
+      toast.error("Пожалуйста, укажите имя и телефон");
       return;
     }
-    toast.success("Заявка отправлена! Перезвоним в течение 15 минут.");
-    setForm({ name: "", phone: "", service: "", note: "" });
+    toast.success("Спасибо! Мы перезвоним в течение 15 минут.");
+    setForm({ name: "", phone: "", service: "", message: "" });
   };
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="fixed top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-md">
-        <div className="container flex h-16 items-center justify-between">
-          <a href="#" className="font-display text-2xl font-semibold tracking-tight">
-            Seasons <span className="text-rose">of</span> Beauty
+      {/* Nav */}
+      <header className="sticky top-0 z-40 backdrop-blur-md bg-background/80 border-b border-border">
+        <div className="container flex items-center justify-between h-16">
+          <a href="#" className="font-display text-xl md:text-2xl font-semibold text-primary">
+            Seasons <span className="text-accent">of</span> Beauty
           </a>
-          <nav className="hidden gap-8 text-sm text-muted-foreground md:flex">
-            <a href="#services" className="hover:text-foreground transition-colors">Услуги</a>
-            <a href="#reviews" className="hover:text-foreground transition-colors">Отзывы</a>
-            <a href="#process" className="hover:text-foreground transition-colors">Как мы работаем</a>
-            <a href="#contacts" className="hover:text-foreground transition-colors">Контакты</a>
+          <nav className="hidden md:flex items-center gap-7 text-sm text-muted-foreground">
+            <a href="#services" className="hover:text-primary transition">Услуги</a>
+            <a href="#reviews" className="hover:text-primary transition">Отзывы</a>
+            <a href="#process" className="hover:text-primary transition">Как записаться</a>
+            <a href="#contacts" className="hover:text-primary transition">Контакты</a>
           </nav>
-          <Button asChild size="sm" className="rounded-full">
+          <Button asChild size="sm" className="bg-primary hover:bg-primary/90">
             <a href="#booking">Записаться</a>
           </Button>
         </div>
       </header>
 
       {/* Hero */}
-      <section className="relative pt-16">
-        <div className="container grid gap-12 py-12 md:grid-cols-2 md:py-24 md:gap-8">
-          <div className="flex flex-col justify-center">
-            <div className="mb-6 flex items-center gap-2 text-sm">
-              <div className="flex">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-4 w-4 fill-gold text-gold" />
-                ))}
-              </div>
-              <span className="text-muted-foreground">5,0 на Яндекс Картах</span>
+      <section className="relative min-h-[88vh] flex items-center overflow-hidden">
+        <div className="absolute inset-0">
+          <img src={heroImg} alt="Интерьер салона красоты Seasons of Beauty" className="w-full h-full object-cover" width={1920} height={1080} />
+          <div className="absolute inset-0" style={{ background: "var(--gradient-hero)" }} />
+        </div>
+        <div className="container relative z-10 py-20 md:py-28">
+          <div className="max-w-2xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-background/90 backdrop-blur text-xs font-medium text-primary mb-6">
+              <MapPin className="w-3.5 h-3.5" />
+              Москва, 2 минуты от м. Охотный Ряд
             </div>
-            <h1 className="font-display text-5xl font-medium leading-[1.05] tracking-tight md:text-7xl">
-              Салон красоты
-              <br />
-              <span className="italic text-rose">в сердце Москвы</span>
+            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-medium text-white leading-[1.05] mb-6">
+              Салон красоты в самом сердце Москвы
             </h1>
-            <p className="mt-6 max-w-xl text-lg text-muted-foreground">
-              Стрижки, окрашивание, маникюр, брови и косметология. Две минуты пешком
-              от метро Охотный Ряд. Запись онлайн, прозрачные цены, мастера с опытом 5+ лет.
+            <p className="text-lg md:text-xl text-white/90 mb-8 max-w-xl leading-relaxed">
+              Стрижки, окрашивание, маникюр и уход у мастеров с многолетним опытом. Запись онлайн, прозрачные цены, удобный маршрут.
             </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Button asChild size="lg" className="rounded-full text-base">
+            <div className="flex flex-wrap gap-3 mb-8">
+              <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground">
                 <a href="#booking">Записаться онлайн</a>
               </Button>
-              <Button asChild size="lg" variant="outline" className="rounded-full text-base">
-                <a href="tel:+74951234567">
-                  <Phone className="mr-2 h-4 w-4" /> +7 (495) 123-45-67
-                </a>
+              <Button asChild size="lg" variant="outline" className="bg-background/90 backdrop-blur border-background/50 text-primary hover:bg-background">
+                <a href="tel:+74951234567"><Phone className="w-4 h-4 mr-2" /> Позвонить</a>
               </Button>
             </div>
-            <div className="mt-10 flex flex-wrap gap-6 text-sm text-muted-foreground">
-              <span className="flex items-center gap-2"><Check className="h-4 w-4 text-rose" /> Без предоплаты</span>
-              <span className="flex items-center gap-2"><Check className="h-4 w-4 text-rose" /> Подтверждение за 15 минут</span>
-              <span className="flex items-center gap-2"><Check className="h-4 w-4 text-rose" /> Каждый день 10:00–22:00</span>
-            </div>
-          </div>
-          <div className="relative">
-            <div className="absolute -inset-4 rounded-3xl bg-gradient-warm" />
-            <img
-              src={heroSalon}
-              alt="Интерьер салона красоты Seasons of Beauty в Москве"
-              width={1600}
-              height={1200}
-              className="relative aspect-[4/5] w-full rounded-2xl object-cover shadow-elegant"
-            />
-            <div className="absolute -bottom-6 -left-6 max-w-[260px] rounded-2xl bg-card p-5 shadow-soft md:-left-10">
-              <div className="flex items-center gap-2 text-sm font-semibold">
-                <MapPin className="h-4 w-4 text-rose" /> Охотный Ряд, 2 мин
+            <div className="flex items-center gap-5 text-white/95">
+              <div className="flex items-center gap-1.5">
+                {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-gold text-gold" />)}
               </div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                ул. Тверская, 3 · Москва, м. Охотный Ряд / Театральная
-              </p>
+              <span className="text-sm">5.0 на Яндекс.Картах · уже 4 отзыва</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Trust bar */}
-      <section className="border-y border-border/60 bg-secondary/40">
-        <div className="container grid grid-cols-2 gap-6 py-8 md:grid-cols-4">
+      {/* Trust strip */}
+      <section className="border-y border-border bg-secondary/40">
+        <div className="container grid grid-cols-2 md:grid-cols-4 gap-6 py-8 text-center">
           {[
-            { v: "5,0★", l: "На Яндекс Картах" },
-            { v: "5+ лет", l: "Опыт мастеров" },
-            { v: "2 мин", l: "От метро Охотный Ряд" },
-            { v: "10–22", l: "Без выходных" },
+            { v: "5.0", l: "оценка на Яндекс.Картах" },
+            { v: "2 мин", l: "пешком от метро" },
+            { v: "10:00–22:00", l: "ежедневно" },
+            { v: "15 мин", l: "среднее время ответа" },
           ].map((s) => (
-            <div key={s.l} className="text-center">
-              <div className="font-display text-3xl font-semibold md:text-4xl">{s.v}</div>
-              <div className="mt-1 text-xs uppercase tracking-wider text-muted-foreground">{s.l}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Services */}
-      <section id="services" className="container py-20 md:py-28">
-        <div className="mb-14 max-w-2xl">
-          <span className="text-sm uppercase tracking-widest text-rose">Услуги и цены</span>
-          <h2 className="mt-3 font-display text-4xl font-medium md:text-5xl">
-            Понятные цены, без сюрпризов
-          </h2>
-          <p className="mt-4 text-muted-foreground">
-            Финальная стоимость зависит от длины и густоты волос, состояния кожи и сложности работы.
-            Мастер согласует цену до начала процедуры.
-          </p>
-        </div>
-
-        <div className="grid gap-6 md:grid-cols-2">
-          {services.map((s) => (
-            <div key={s.title} className="group overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition-all hover:shadow-elegant">
-              <div className="relative aspect-[16/9] overflow-hidden">
-                <img
-                  src={s.image}
-                  alt={s.title}
-                  loading="lazy"
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                <div className="absolute left-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-card/95 backdrop-blur">
-                  <s.icon className="h-5 w-5 text-rose" />
-                </div>
-              </div>
-              <div className="p-6">
-                <h3 className="font-display text-2xl font-medium">{s.title}</h3>
-                <ul className="mt-4 divide-y divide-border">
-                  {s.items.map((i) => (
-                    <li key={i.name} className="flex items-center justify-between py-2.5 text-sm">
-                      <span>{i.name}</span>
-                      <span className="font-medium text-foreground">{i.price}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+            <div key={s.l}>
+              <div className="font-display text-2xl md:text-3xl font-semibold text-primary">{s.v}</div>
+              <div className="text-xs md:text-sm text-muted-foreground mt-1">{s.l}</div>
             </div>
           ))}
         </div>
       </section>
 
       {/* Reviews */}
-      <section id="reviews" className="bg-gradient-warm py-20 md:py-28">
+      <section id="reviews" className="py-20 md:py-28">
         <div className="container">
-          <div className="mb-12 flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
-            <div className="max-w-2xl">
-              <span className="text-sm uppercase tracking-widest text-rose">Отзывы</span>
-              <h2 className="mt-3 font-display text-4xl font-medium md:text-5xl">
-                Нам доверяют постоянные клиенты
-              </h2>
-            </div>
-            <a
-              href="https://yandex.ru/maps"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 rounded-full bg-card px-5 py-3 shadow-soft transition-all hover:shadow-elegant"
-            >
-              <div className="flex">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-4 w-4 fill-gold text-gold" />
-                ))}
-              </div>
-              <span className="text-sm font-medium">5,0 — Яндекс Карты</span>
-            </a>
+          <div className="max-w-2xl mb-12">
+            <p className="text-sm uppercase tracking-widest text-accent mb-3">Отзывы</p>
+            <h2 className="font-display text-3xl md:text-5xl font-medium text-primary mb-4">Что говорят клиенты</h2>
+            <p className="text-muted-foreground">Реальные отзывы с Яндекс.Карт. Мы ценим каждого, кто к нам приходит.</p>
           </div>
-
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid md:grid-cols-2 gap-5">
             {reviews.map((r) => (
-              <figure key={r.name} className="flex flex-col rounded-2xl bg-card p-6 shadow-soft">
-                <div className="mb-3 flex">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-3.5 w-3.5 fill-gold text-gold" />
-                  ))}
+              <Card key={r.name} className="p-7 border-border shadow-none hover:shadow-[var(--shadow-card)] transition">
+                <div className="flex items-center gap-1 mb-3">
+                  {[...Array(r.rating)].map((_, i) => <Star key={i} className="w-4 h-4 fill-gold text-gold" />)}
                 </div>
-                <blockquote className="flex-1 text-sm leading-relaxed text-foreground/80">
-                  «{r.text}»
-                </blockquote>
-                <figcaption className="mt-4 text-sm font-medium">{r.name}</figcaption>
-              </figure>
+                <p className="text-foreground/90 leading-relaxed mb-4">«{r.text}»</p>
+                <div className="text-sm font-medium text-primary">{r.name}</div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Services & Prices */}
+      <section id="services" className="py-20 md:py-28 bg-secondary/30">
+        <div className="container">
+          <div className="max-w-2xl mb-12">
+            <p className="text-sm uppercase tracking-widest text-accent mb-3">Услуги и цены</p>
+            <h2 className="font-display text-3xl md:text-5xl font-medium text-primary mb-4">Прозрачно, без сюрпризов</h2>
+            <p className="text-muted-foreground">Финальная стоимость зависит от длины волос и сложности работы — назовём её на консультации перед началом.</p>
+          </div>
+          <div className="grid md:grid-cols-2 gap-6">
+            {services.map((s) => (
+              <Card key={s.title} className="overflow-hidden border-border shadow-[var(--shadow-card)]">
+                <div className="aspect-[16/9] overflow-hidden bg-muted">
+                  <img src={s.image} alt={s.title} loading="lazy" className="w-full h-full object-cover" width={800} height={450} />
+                </div>
+                <div className="p-7">
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="w-10 h-10 rounded-full bg-accent/15 flex items-center justify-center">
+                      <s.icon className="w-5 h-5 text-accent" />
+                    </div>
+                    <h3 className="font-display text-2xl font-semibold text-primary">{s.title}</h3>
+                  </div>
+                  <ul className="space-y-3">
+                    {s.items.map((it) => (
+                      <li key={it.name} className="flex justify-between gap-4 text-sm border-b border-border last:border-0 pb-3 last:pb-0">
+                        <span className="text-foreground">{it.name}</span>
+                        <span className="text-muted-foreground whitespace-nowrap">{it.price}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </Card>
             ))}
           </div>
         </div>
       </section>
 
       {/* Process */}
-      <section id="process" className="container py-20 md:py-28">
-        <div className="mb-14 max-w-2xl">
-          <span className="text-sm uppercase tracking-widest text-rose">Как мы работаем</span>
-          <h2 className="mt-3 font-display text-4xl font-medium md:text-5xl">
-            От заявки до результата — 4 шага
-          </h2>
-        </div>
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-          {steps.map((s) => (
-            <div key={s.n} className="relative">
-              <div className="font-display text-5xl font-light text-rose/60">{s.n}</div>
-              <h3 className="mt-3 font-display text-2xl">{s.title}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">{s.text}</p>
-            </div>
-          ))}
+      <section id="process" className="py-20 md:py-28">
+        <div className="container">
+          <div className="max-w-2xl mb-12">
+            <p className="text-sm uppercase tracking-widest text-accent mb-3">Как записаться</p>
+            <h2 className="font-display text-3xl md:text-5xl font-medium text-primary mb-4">Четыре простых шага</h2>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {steps.map((s) => (
+              <div key={s.n} className="relative">
+                <div className="font-display text-5xl text-accent/40 mb-3">{s.n}</div>
+                <h3 className="font-semibold text-lg text-primary mb-2">{s.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Booking */}
-      <section id="booking" className="bg-primary text-primary-foreground py-20 md:py-28">
-        <div className="container grid gap-12 lg:grid-cols-2">
-          <div>
-            <span className="text-sm uppercase tracking-widest text-rose">Запись</span>
-            <h2 className="mt-3 font-display text-4xl font-medium md:text-5xl">
-              Оставьте заявку — <br />перезвоним за 15 минут
-            </h2>
-            <p className="mt-5 max-w-md text-primary-foreground/70">
-              Подтвердим удобное время, ответим на вопросы по услугам и стоимости.
-              Без навязчивых звонков и предоплат.
-            </p>
-            <div className="mt-8 space-y-4 text-sm">
-              <div className="flex items-center gap-3"><Phone className="h-4 w-4 text-rose" /> +7 (495) 123-45-67</div>
-              <div className="flex items-center gap-3"><Send className="h-4 w-4 text-rose" /> @seasonsofbeauty</div>
-              <div className="flex items-center gap-3"><Clock className="h-4 w-4 text-rose" /> Ежедневно, 10:00–22:00</div>
-            </div>
-          </div>
-          <form
-            onSubmit={handleSubmit}
-            className="rounded-2xl bg-card p-6 text-card-foreground shadow-elegant md:p-8"
-          >
-            <div className="space-y-4">
-              <div>
-                <label className="mb-2 block text-sm font-medium">Ваше имя</label>
-                <Input
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  placeholder="Анна"
-                  className="h-12"
-                />
-              </div>
-              <div>
-                <label className="mb-2 block text-sm font-medium">Телефон</label>
-                <Input
-                  value={form.phone}
-                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  type="tel"
-                  placeholder="+7 (___) ___-__-__"
-                  className="h-12"
-                />
-              </div>
-              <div>
-                <label className="mb-2 block text-sm font-medium">Услуга</label>
-                <Input
-                  value={form.service}
-                  onChange={(e) => setForm({ ...form, service: e.target.value })}
-                  placeholder="Например: маникюр с покрытием"
-                  className="h-12"
-                />
-              </div>
-              <div>
-                <label className="mb-2 block text-sm font-medium">Комментарий</label>
-                <Textarea
-                  value={form.note}
-                  onChange={(e) => setForm({ ...form, note: e.target.value })}
-                  placeholder="Удобное время, пожелания"
-                  rows={3}
-                />
-              </div>
-              <Button type="submit" size="lg" className="w-full rounded-full text-base">
-                Записаться
-              </Button>
-              <p className="text-center text-xs text-muted-foreground">
-                Нажимая «Записаться», вы соглашаетесь с обработкой персональных данных
+      {/* Booking form */}
+      <section id="booking" className="py-20 md:py-28 bg-secondary/40">
+        <div className="container max-w-5xl">
+          <div className="grid md:grid-cols-2 gap-10 lg:gap-16 items-start">
+            <div>
+              <p className="text-sm uppercase tracking-widest text-accent mb-3">Запись и расчёт</p>
+              <h2 className="font-display text-3xl md:text-5xl font-medium text-primary mb-5">Оставьте заявку — перезвоним за 15 минут</h2>
+              <p className="text-muted-foreground mb-8 leading-relaxed">
+                Опишите, какая услуга вас интересует. Подскажем, к какому мастеру записаться, сориентируем по итоговой стоимости и удобному времени.
               </p>
+              <ul className="space-y-3">
+                {[
+                  "Не нужно создавать аккаунт",
+                  "Подтверждение в течение 15 минут",
+                  "Можно перенести запись в один клик",
+                  "Без навязывания дополнительных услуг",
+                ].map((t) => (
+                  <li key={t} className="flex items-start gap-3 text-foreground/90">
+                    <Check className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
+                    <span>{t}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
-          </form>
+            <Card className="p-7 md:p-8 shadow-[var(--shadow-soft)] border-border">
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <Label htmlFor="name">Как к вам обращаться</Label>
+                  <Input id="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Ваше имя" className="mt-1.5" />
+                </div>
+                <div>
+                  <Label htmlFor="phone">Телефон</Label>
+                  <Input id="phone" type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="+7 (___) ___-__-__" className="mt-1.5" />
+                </div>
+                <div>
+                  <Label htmlFor="service">Услуга</Label>
+                  <Select value={form.service} onValueChange={(v) => setForm({ ...form, service: v })}>
+                    <SelectTrigger id="service" className="mt-1.5">
+                      <SelectValue placeholder="Выберите услугу" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="hair">Стрижка / окрашивание</SelectItem>
+                      <SelectItem value="nails">Маникюр / педикюр</SelectItem>
+                      <SelectItem value="face">Уход за лицом</SelectItem>
+                      <SelectItem value="brows">Брови / ресницы</SelectItem>
+                      <SelectItem value="other">Другое / консультация</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="message">Удобное время или комментарий</Label>
+                  <Textarea id="message" value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} placeholder="Например: суббота после 14:00" className="mt-1.5 min-h-[80px]" />
+                </div>
+                <Button type="submit" size="lg" className="w-full bg-primary hover:bg-primary/90">
+                  Отправить заявку
+                </Button>
+                <p className="text-xs text-muted-foreground text-center">
+                  Нажимая кнопку, вы соглашаетесь с обработкой персональных данных.
+                </p>
+              </form>
+            </Card>
+          </div>
         </div>
       </section>
 
       {/* Contacts */}
-      <section id="contacts" className="container py-20 md:py-28">
-        <div className="grid gap-10 lg:grid-cols-2">
-          <div>
-            <span className="text-sm uppercase tracking-widest text-rose">Контакты</span>
-            <h2 className="mt-3 font-display text-4xl font-medium md:text-5xl">
-              Найдёте нас за 2 минуты
-            </h2>
-            <p className="mt-4 text-muted-foreground">
-              Мы в самом центре Москвы — рядом с Манежной площадью, между метро Охотный Ряд
-              и Театральная. Удобно зайти до работы, в обед или после прогулки по Тверской.
-            </p>
-            <div className="mt-8 space-y-5">
-              <div className="flex gap-4">
-                <MapPin className="mt-1 h-5 w-5 shrink-0 text-rose" />
-                <div>
-                  <div className="font-medium">Адрес</div>
-                  <div className="text-sm text-muted-foreground">ул. Тверская, 3, Москва</div>
-                  <div className="text-sm text-muted-foreground">м. Охотный Ряд / Театральная</div>
-                </div>
-              </div>
-              <div className="flex gap-4">
-                <Phone className="mt-1 h-5 w-5 shrink-0 text-rose" />
-                <div>
-                  <div className="font-medium">Телефон</div>
-                  <a href="tel:+74951234567" className="text-sm text-muted-foreground hover:text-foreground">
-                    +7 (495) 123-45-67
-                  </a>
-                </div>
-              </div>
-              <div className="flex gap-4">
-                <Clock className="mt-1 h-5 w-5 shrink-0 text-rose" />
-                <div>
-                  <div className="font-medium">Часы работы</div>
-                  <div className="text-sm text-muted-foreground">Ежедневно 10:00 – 22:00</div>
-                </div>
-              </div>
-              <div className="flex gap-4">
-                <Instagram className="mt-1 h-5 w-5 shrink-0 text-rose" />
-                <div>
-                  <div className="font-medium">Соцсети</div>
-                  <div className="text-sm text-muted-foreground">@seasonsofbeauty</div>
-                </div>
-              </div>
-            </div>
+      <section id="contacts" className="py-20 md:py-28">
+        <div className="container">
+          <div className="max-w-2xl mb-12">
+            <p className="text-sm uppercase tracking-widest text-accent mb-3">Контакты</p>
+            <h2 className="font-display text-3xl md:text-5xl font-medium text-primary mb-4">Найти нас просто</h2>
           </div>
-          <div className="overflow-hidden rounded-2xl border border-border shadow-soft">
-            <iframe
-              title="Seasons of Beauty на карте"
-              src="https://yandex.ru/map-widget/v1/?ll=37.615%2C55.757&z=16&pt=37.615,55.757,pm2rdm"
-              className="h-[420px] w-full lg:h-full"
-              loading="lazy"
-            />
+          <div className="grid lg:grid-cols-2 gap-8 items-stretch">
+            <div className="space-y-5">
+              {[
+                { icon: MapPin, title: "Адрес", text: "Москва, ул. Тверская, рядом с метро Охотный Ряд" },
+                { icon: Clock, title: "Часы работы", text: "Ежедневно, 10:00 – 22:00" },
+                { icon: Phone, title: "Телефон", text: "+7 (495) 123-45-67", href: "tel:+74951234567" },
+                { icon: MessageCircle, title: "WhatsApp / Telegram", text: "Напишите нам — отвечаем быстро", href: "https://wa.me/74951234567" },
+              ].map((c) => (
+                <Card key={c.title} className="p-5 border-border shadow-none">
+                  <div className="flex items-start gap-4">
+                    <div className="w-11 h-11 rounded-full bg-accent/15 flex items-center justify-center flex-shrink-0">
+                      <c.icon className="w-5 h-5 text-accent" />
+                    </div>
+                    <div>
+                      <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1">{c.title}</div>
+                      {c.href ? (
+                        <a href={c.href} className="text-foreground hover:text-accent transition font-medium">{c.text}</a>
+                      ) : (
+                        <div className="text-foreground font-medium">{c.text}</div>
+                      )}
+                    </div>
+                  </div>
+                </Card>
+              ))}
+              <Button asChild size="lg" variant="outline" className="w-full">
+                <a href="https://yandex.ru/maps/?text=Охотный+Ряд+Москва" target="_blank" rel="noreferrer">
+                  Построить маршрут на Яндекс.Картах
+                </a>
+              </Button>
+            </div>
+            <div className="rounded-xl overflow-hidden border border-border shadow-[var(--shadow-card)] min-h-[400px]">
+              <iframe
+                title="Карта проезда"
+                src="https://yandex.ru/map-widget/v1/?ll=37.615%2C55.757&z=16&pt=37.615,55.757,pm2rdm"
+                className="w-full h-full min-h-[400px] border-0"
+                loading="lazy"
+              />
+            </div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border bg-secondary/40">
-        <div className="container flex flex-col items-center justify-between gap-4 py-8 text-sm text-muted-foreground md:flex-row">
-          <div className="font-display text-lg text-foreground">Seasons of Beauty</div>
-          <div>© {new Date().getFullYear()} · Москва, ул. Тверская, 3</div>
+      <footer className="border-t border-border py-10 bg-secondary/30">
+        <div className="container flex flex-col md:flex-row gap-4 justify-between items-center text-sm text-muted-foreground">
+          <div className="font-display text-lg text-primary">Seasons <span className="text-accent">of</span> Beauty</div>
+          <div>© {new Date().getFullYear()} Все права защищены</div>
+          <a href="#booking" className="hover:text-primary transition">Записаться онлайн</a>
         </div>
       </footer>
     </div>
